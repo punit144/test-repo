@@ -1,27 +1,16 @@
-name: Test Self-Hosted Runner
+name: "Test Ephemeral Runners"
 
 on:
-  workflow_dispatch:  # Allows manual trigger from GitHub UI
+  push:
+    branches: [ "main" ]
 
 jobs:
-  runner-test:
-    runs-on: [self-hosted, ephemeral-runners]  # Match the label of your runner
+  ephemeral-runner-job:
+    runs-on: 
+      - self-hosted
     steps:
-      - name: Check Runner Details
-        run: |
-          echo "Runner is online!"
-          echo "Running on $(uname -a)"
-      
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-      
-      - name: Run Simple Commands
-        run: |
-          echo "Testing self-hosted runner!"
-          echo "Current directory:"
-          pwd
-          echo "Listing files:"
-          ls -lah
-          echo "Running basic system info..."
-          env | sort
+      - name: Checkout
+        uses: actions/checkout@v3
 
+      - name: Hello ephemeral runner
+        run: echo "Hello from an ephemeral runner!"
