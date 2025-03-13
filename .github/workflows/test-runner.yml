@@ -1,0 +1,27 @@
+name: Test Self-Hosted Runner
+
+on:
+  workflow_dispatch:  # Allows manual trigger from GitHub UI
+
+jobs:
+  runner-test:
+    runs-on: [self-hosted, gha-runner-scale-set]  # Match the label of your runner
+    steps:
+      - name: Check Runner Details
+        run: |
+          echo "Runner is online!"
+          echo "Running on $(uname -a)"
+      
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Run Simple Commands
+        run: |
+          echo "Testing self-hosted runner!"
+          echo "Current directory:"
+          pwd
+          echo "Listing files:"
+          ls -lah
+          echo "Running basic system info..."
+          env | sort
+
