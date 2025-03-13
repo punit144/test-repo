@@ -5,7 +5,7 @@ on:
 
 jobs:
   runner-test:
-    runs-on: [self-hosted, gha-runner-scale-set]  # Match the label of your runner
+    runs-on: [self-hosted, ephemeral-runners]  # Match the label of your runner
     steps:
       - name: Check Runner Details
         run: |
