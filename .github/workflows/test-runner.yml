@@ -7,7 +7,7 @@ on:
 jobs:
   ephemeral-runner-job:
     runs-on: 
-      - self-hosted
+      - ephemeral-runners
     steps:
       - name: Checkout
         uses: actions/checkout@v3
