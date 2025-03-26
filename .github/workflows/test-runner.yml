@@ -7,7 +7,7 @@ on:
 jobs:
   ephemeral-runner-job:
     runs-on: 
-      - mgmt-clusters-na
+      - punit-runner
     steps:
       - name: Checkout
         uses: actions/checkout@v3
