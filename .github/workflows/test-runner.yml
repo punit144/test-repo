@@ -12,5 +12,5 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Hello ephemeral run nera
+      - name: Hello ephemeral runner
         run: echo "Hello from an punit runner!"
