@@ -16,4 +16,4 @@ jobs:
         run: |
           echo "Hello from a punit runner!"
           echo "Sleeping for 5 minutes to simulate long job..."
-          sleep 300  # 300 seconds = 5 minutes
+          sleep 15  # 300 seconds = 5 minutes
