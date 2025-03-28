@@ -13,4 +13,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Hello ephemeral runner
-        run: echo "Hello from an punit runner!"
+        run: |
+          echo "Hello from a punit runner!"
+          echo "Sleeping for 5 minutes to simulate long job..."
+          sleep 300  # 300 seconds = 5 minutes
