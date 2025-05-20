@@ -1,0 +1,11 @@
+image:
+  repository: punit144/webapp
+  tag: v1.0.1        # <- default; Image Updater will bump this
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080         # Exposed container port
+
+resources: {}
+replicaCount: 1
