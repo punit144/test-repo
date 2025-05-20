@@ -1,9 +1,9 @@
 apiVersion: v2
-name: webapp            # chart name
+name: webapp-httpd
 description: Simple webapp backed by punit144/webapp
 type: application
-version: 0.1.0          # chart version (Helm’s)
-appVersion: "v1.0.1"    # default container tag
+version: 0.1.0
+appVersion: "v1.0.1"
 icon: https://static.thenounproject.com/png/1935806-200.png
 
 maintainers:
