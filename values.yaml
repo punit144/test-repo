@@ -1,7 +1,8 @@
 image:
   repository: punit144/webapp
-  tag: v1.0.1        # <- default; Image Updater will bump this
-  pullPolicy: IfNotPresent
+  tag: "latest"
+  digest: true
+  pullPolicy: "Always"
 
 service:
   type: ClusterIP
