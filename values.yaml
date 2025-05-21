@@ -1,6 +1,6 @@
 image:
   repository: punit144/webapp-httpd
-  tag: "v1.0.0"
+  tag: "latest"
   digest: true
   pullPolicy: "Always"
 
