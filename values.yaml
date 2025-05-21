@@ -1,8 +1,8 @@
 image:
   repository: punit144/webapp-httpd
   tag: "latest"
-  digest: true
-  pullPolicy: "Always"
+  # digest: true
+  # pullPolicy: "Always"
 
 service:
   type: ClusterIP
