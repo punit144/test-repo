@@ -15,3 +15,9 @@ spec:
   dnsNames:
     - {{ .Values.istio.host }}
 
+  privateKey:
+    rotationPolicy: Always
+
+  additionalOutputFormats:
+    - type: CombinedPEM
+
