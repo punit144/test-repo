@@ -42,7 +42,7 @@ rollout:
   canaryService: gateway-canary
 
 istio:
-  host: "*"
+  host: "deployment-platform.local"
 
 resources:
   requests:
