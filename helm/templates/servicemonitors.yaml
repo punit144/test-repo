@@ -1,0 +1,20 @@
+{{- $ns := .Values.namespace -}}
+{{- range $name, $cfg := dict "gateway" .Values.services.gateway "deployments-service" .Values.services.deploymentsService "events-service" .Values.services.eventsService "notifications-service" .Values.services.notificationsService }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ $name }}
+  namespace: {{ $ns }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ $name }}
+  namespaceSelector:
+    matchNames:
+      - {{ $ns }}
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+---
+{{- end }}
