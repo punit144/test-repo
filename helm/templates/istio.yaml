@@ -26,7 +26,6 @@ spec:
         credentialName: deployment-platform-tls
 
 ---
-# 1. Argo CD Route (argocd.deployment-platform.local)
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
@@ -45,7 +44,6 @@ spec:
               number: 80 # Use insecure port internally (Istio handles TLS)
 
 ---
-# 2. Grafana Route (grafana.deployment-platform.local)
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
@@ -64,7 +62,6 @@ spec:
               number: 80
 
 ---
-# 3. Prometheus Route (prometheus.deployment-platform.local)
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
@@ -83,7 +80,6 @@ spec:
               number: 9090
 
 ---
-# 4. Argo Rollouts Route (rollouts.deployment-platform.local)
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
@@ -100,3 +96,28 @@ spec:
             host: argo-rollouts-dashboard-service.argo-rollouts.svc.cluster.local
             port:
               number: 3100
+---
+# 5. Main Application Route (Managed by Argo Rollouts)
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: gateway
+  namespace: {{ .Values.namespace }}
+spec:
+  hosts:
+    - "{{ .Values.istio.host }}"
+  gateways:
+    - deployment-platform
+  http:
+    - name: primary
+      route:
+        - destination:
+            host: gateway-stable
+            port:
+              number: 80
+          weight: 100
+        - destination:
+            host: gateway-canary
+            port:
+              number: 80
+          weight: 0

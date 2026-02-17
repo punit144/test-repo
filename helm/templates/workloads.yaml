@@ -1,5 +1,6 @@
 {{- $ns := .Values.namespace -}}
-{{- range $name, $cfg := dict "gateway" .Values.services.gateway "deployments-service" .Values.services.deploymentsService "events-service" .Values.services.eventsService "notifications-service" .Values.services.notificationsService "frontend" .Values.services.frontend }}
+{{- /* REMOVED gateway FROM THIS LIST BELOW because it is now managed by rollout.yaml */ -}}
+{{- range $name, $cfg := dict "deployments-service" .Values.services.deploymentsService "events-service" .Values.services.eventsService "notifications-service" .Values.services.notificationsService "frontend" .Values.services.frontend }}
 
 apiVersion: apps/v1
 kind: Deployment
@@ -40,8 +41,6 @@ spec:
               name: platform-secrets
 
         # ---- Probes ----
-        {{- if eq $name "gateway" }}
-        # nginx only exposes /
         readinessProbe:
           httpGet:
             path: /
@@ -54,20 +53,6 @@ spec:
             port: {{ $cfg.port }}
           initialDelaySeconds: 10
           periodSeconds: 20
-        {{- else }}
-        readinessProbe:
-          httpGet:
-            path: /
-            port: {{ $cfg.port }}
-          initialDelaySeconds: 5
-          periodSeconds: 10
-        livenessProbe:
-          httpGet:
-            path: /
-            port: {{ $cfg.port }}
-          initialDelaySeconds: 10
-          periodSeconds: 20
-        {{- end }}
 
         resources:
 {{ toYaml $.Values.resources | indent 10 }}
@@ -123,4 +108,3 @@ spec:
   ports:
     - port: 80
       targetPort: {{ .Values.services.gateway.port }}
-
