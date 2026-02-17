@@ -4,3 +4,5 @@ metadata:
   name: {{ .Values.namespace }}
   labels:
     app.kubernetes.io/part-of: deployment-event-platform
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"

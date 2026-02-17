@@ -2,6 +2,8 @@ apiVersion: templates.gatekeeper.sh/v1beta1
 kind: ConstraintTemplate
 metadata:
   name: k8srequiredplatformcontrols
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
 spec:
   crd:
     spec:
@@ -36,6 +38,8 @@ apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: K8sRequiredPlatformControls
 metadata:
   name: require-platform-controls
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   match:
     kinds:
