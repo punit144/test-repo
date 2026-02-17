@@ -5,8 +5,11 @@ metadata:
   namespace: {{ .Values.namespace }}
 spec:
   secretName: deployment-platform-tls
+
   issuerRef:
+    name: selfsigned-issuer
     kind: ClusterIssuer
-    name: {{ .Values.clusterIssuer }}
+
   dnsNames:
     - {{ .Values.istio.host | quote }}
+
