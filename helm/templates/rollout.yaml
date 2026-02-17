@@ -18,43 +18,21 @@ spec:
           image: {{ .Values.services.gateway.image }}
           ports:
             - containerPort: {{ .Values.services.gateway.port }}
+
   strategy:
-{{- if eq .Values.rollout.strategy "blueGreen" }}
-    blueGreen:
-      activeService: gateway
-      previewService: gateway-canary
-      autoPromotionEnabled: true
-{{- else }}
     canary:
       canaryService: {{ .Values.rollout.canaryService }}
       stableService: {{ .Values.rollout.stableService }}
+
       trafficRouting:
         istio:
           virtualService:
             name: gateway
-            routes:
-              - primary
+
       steps:
         - setWeight: {{ .Values.rollout.canaryWeight }}
         - pause: { duration: 60s }
         - analysis:
             templates:
               - templateName: gateway-success-rate
-{{- end }}
----
-apiVersion: argoproj.io/v1alpha1
-kind: AnalysisTemplate
-metadata:
-  name: gateway-success-rate
-  namespace: {{ .Values.namespace }}
-spec:
-  metrics:
-    - name: success-rate
-      interval: 30s
-      successCondition: result[0] >= 0.95
-      provider:
-        prometheus:
-          address: http://prometheus-server.monitoring.svc.cluster.local
-          query: |
-            sum(rate(http_requests_total{app="gateway",status!~"5.."}[2m])) /
-            sum(rate(http_requests_total{app="gateway"}[2m]))
+
