@@ -3,18 +3,17 @@ kind: Certificate
 metadata:
   name: deployment-platform-cert
   namespace: {{ .Values.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"  # Valid fix: Force this to apply LAST
 spec:
   secretName: deployment-platform-tls
   issuerRef:
     name: local-ca-issuer
     kind: Issuer
+    group: cert-manager.io
   commonName: {{ .Values.istio.host }}
   dnsNames:
     - {{ .Values.istio.host }}
-  secretTemplate:
-    annotations:
-      cert-manager.io/issue-temporary-certificate: "false"
   privateKey:
-    rotationPolicy: Always
-  additionalOutputFormats:
-    - type: CombinedPEM
+    algorithm: RSA
+    size: 2048

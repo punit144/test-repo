@@ -16,8 +16,8 @@ spec:
   commonName: local-dev-ca
   secretName: local-root-ca
   privateKey:
-    algorithm: ECDSA
-    size: 256
+    algorithm: RSA
+    size: 2048
   issuerRef:
     name: local-selfsigned
     kind: Issuer
