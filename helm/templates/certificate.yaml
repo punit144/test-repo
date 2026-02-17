@@ -15,6 +15,10 @@ spec:
   dnsNames:
     - {{ .Values.istio.host }}
 
+  secretTemplate:
+    annotations:
+      cert-manager.io/issue-temporary-certificate: "false"
+
   privateKey:
     rotationPolicy: Always
 
