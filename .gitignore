@@ -1,0 +1,14 @@
+# Go
+bin/
+*.out
+
+# Node
+node_modules/
+dist/
+
+# Env
+.env
+
+# IDE
+.vscode/
+.idea/

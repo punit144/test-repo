@@ -1,0 +1,53 @@
+namespace: deployment-event-platform
+clusterIssuer: letsencrypt-prod
+
+imagePullSecrets: []
+
+services:
+  gateway:
+    image: ghcr.io/example/gateway:latest
+    replicas: 2
+    port: 8080
+  deploymentsService:
+    image: ghcr.io/example/deployments-service:latest
+    replicas: 2
+    port: 8081
+  eventsService:
+    image: ghcr.io/example/events-service:latest
+    replicas: 2
+    port: 8082
+  notificationsService:
+    image: ghcr.io/example/notifications-service:latest
+    replicas: 2
+    port: 8083
+  frontend:
+    image: ghcr.io/example/frontend:latest
+    replicas: 2
+    port: 80
+
+postgres:
+  image: postgres:16-alpine
+  storage: 10Gi
+  user: postgres
+  db: deployments
+
+redis:
+  image: redis:7-alpine
+
+rollout:
+  enabled: true
+  strategy: canary # canary or blueGreen
+  canaryWeight: 20
+  stableService: gateway-stable
+  canaryService: gateway-canary
+
+istio:
+  host: deployment-platform.local
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

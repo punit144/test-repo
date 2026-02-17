@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argo-rollouts-notification-config
+  namespace: {{ .Values.namespace }}
+data:
+  service.webhook.platform: |
+    url: https://example-webhook.local/notify
+    headers:
+    - name: Content-Type
+      value: application/json
+  template.rollout-event: |
+    webhook:
+      platform:
+        method: POST
+        body: |
+          {
+            "rollout": "{{`{{.rollout.metadata.name}}`}}",
+            "namespace": "{{`{{.rollout.metadata.namespace}}`}}",
+            "status": "{{`{{.rollout.status.phase}}`}}"
+          }
+  trigger.on-rollout-updated: |
+    - when: rollout.status.phase in ['Healthy', 'Progressing', 'Degraded']
+      send: [rollout-event]

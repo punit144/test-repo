@@ -1,0 +1,42 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: deployments
+    ports: ["5432:5432"]
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+  deployments-service:
+    build: ./app/deployments-service
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/deployments?sslmode=disable
+      REDIS_ADDR: redis:6379
+    ports: ["8081:8081"]
+    depends_on: [postgres, redis]
+  events-service:
+    build: ./app/events-service
+    environment:
+      REDIS_ADDR: redis:6379
+    ports: ["8082:8082"]
+    depends_on: [redis]
+  notifications-service:
+    build: ./app/notifications-service
+    environment:
+      REDIS_ADDR: redis:6379
+      WEBHOOK_URLS: ""
+    ports: ["8083:8083"]
+    depends_on: [redis]
+  gateway:
+    build: ./app/gateway
+    environment:
+      DEPLOYMENTS_SERVICE_URL: http://deployments-service:8081
+    ports: ["8080:8080"]
+    depends_on: [deployments-service]
+  frontend:
+    build: ./app/frontend
+    ports: ["5173:80"]
+    depends_on: [gateway, events-service]

@@ -1,0 +1,29 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: allow-gateway-to-deployments
+  namespace: {{ .Values.namespace }}
+spec:
+  selector: app == 'deployments-service'
+  ingress:
+    - action: Allow
+      source:
+        selector: app == 'gateway'
+      protocol: TCP
+      destination:
+        ports: [8081]
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: allow-apps-to-redis
+  namespace: {{ .Values.namespace }}
+spec:
+  selector: app == 'redis'
+  ingress:
+    - action: Allow
+      source:
+        selector: app in {'deployments-service','events-service','notifications-service'}
+      protocol: TCP
+      destination:
+        ports: [6379]

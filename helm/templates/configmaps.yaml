@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: platform-config
+  namespace: {{ .Values.namespace }}
+data:
+  REDIS_ADDR: redis:6379
+  DEPLOYMENTS_SERVICE_URL: http://deployments-service:8081
+  EVENTS_WS_URL: ws://events-service:8082/ws
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: platform-secrets
+  namespace: {{ .Values.namespace }}
+type: Opaque
+stringData:
+  DATABASE_URL: postgres://{{ .Values.postgres.user }}:CHANGE_ME@postgres:5432/{{ .Values.postgres.db }}?sslmode=disable
+  WEBHOOK_URLS: https://example-webhook.local/notify
