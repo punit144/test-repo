@@ -13,6 +13,7 @@ spec:
         protocol: HTTP
       hosts:
         - {{ .Values.istio.host | quote }}
+
 ---
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
@@ -25,16 +26,18 @@ spec:
   gateways:
     - deployment-platform
   http:
-    - name: primary
-      route:
+    - route:
         - destination:
-            host: gateway
-            subset: stable
-          weight: 80
+            host: gateway-stable
+            port:
+              number: 80
+          weight: 100
         - destination:
-            host: gateway
-            subset: canary
-          weight: 20
+            host: gateway-canary
+            port:
+              number: 80
+          weight: 0
+
 ---
 apiVersion: networking.istio.io/v1beta1
 kind: DestinationRule
@@ -43,10 +46,4 @@ metadata:
   namespace: {{ .Values.namespace }}
 spec:
   host: gateway
-  subsets:
-    - name: stable
-      labels:
-        app: gateway
-    - name: canary
-      labels:
-        app: gateway
+
