@@ -17,6 +17,7 @@ spec:
       ports:
         - protocol: TCP
           port: 8081
+
 ---
 apiVersion: crd.projectcalico.org/v1
 kind: NetworkPolicy
