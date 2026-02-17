@@ -2,7 +2,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: deployment-platform-cert
-  namespace: {{ .Values.namespace }}
+  namespace: istio-system
 spec:
   secretName: deployment-platform-tls
 
