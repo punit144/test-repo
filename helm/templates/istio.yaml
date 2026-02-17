@@ -7,64 +7,96 @@ spec:
   selector:
     istio: ingressgateway
   servers:
-
-    # Redirect HTTP → HTTPS automatically
     - port:
         number: 80
         name: http
         protocol: HTTP
       hosts:
-        - {{ .Values.istio.host | quote }}
+        - "*.{{ .Values.istio.host }}" # Allow all subdomains
       tls:
         httpsRedirect: true
-
-    # Real HTTPS listener
     - port:
         number: 443
         name: https
         protocol: HTTPS
       hosts:
-        - {{ .Values.istio.host | quote }}
+        - "*.{{ .Values.istio.host }}" # Allow all subdomains
       tls:
         mode: SIMPLE
         credentialName: deployment-platform-tls
 
 ---
+# 1. Argo CD Route (argocd.deployment-platform.local)
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
-  name: gateway
+  name: argocd-route
   namespace: {{ .Values.namespace }}
 spec:
   hosts:
-    - {{ .Values.istio.host | quote }}
+    - "argocd.{{ .Values.istio.host }}"
   gateways:
     - deployment-platform
-
   http:
-
-    # Main app route
-    - match:
-        - uri:
-            prefix: /
-      route:
+    - route:
         - destination:
-            host: gateway-stable
+            host: argocd-server.argocd.svc.cluster.local
             port:
-              number: 80
-          weight: 100
-        - destination:
-            host: gateway-canary
-            port:
-              number: 80
-          weight: 0
+              number: 80 # Use insecure port internally (Istio handles TLS)
 
 ---
+# 2. Grafana Route (grafana.deployment-platform.local)
 apiVersion: networking.istio.io/v1beta1
-kind: DestinationRule
+kind: VirtualService
 metadata:
-  name: gateway
+  name: grafana-route
   namespace: {{ .Values.namespace }}
 spec:
-  host: gateway
+  hosts:
+    - "grafana.{{ .Values.istio.host }}"
+  gateways:
+    - deployment-platform
+  http:
+    - route:
+        - destination:
+            host: kube-prometheus-grafana.monitoring.svc.cluster.local
+            port:
+              number: 80
 
+---
+# 3. Prometheus Route (prometheus.deployment-platform.local)
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: prometheus-route
+  namespace: {{ .Values.namespace }}
+spec:
+  hosts:
+    - "prometheus.{{ .Values.istio.host }}"
+  gateways:
+    - deployment-platform
+  http:
+    - route:
+        - destination:
+            host: kube-prometheus-kube-prome-prometheus.monitoring.svc.cluster.local
+            port:
+              number: 9090
+
+---
+# 4. Argo Rollouts Route (rollouts.deployment-platform.local)
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: rollouts-route
+  namespace: {{ .Values.namespace }}
+spec:
+  hosts:
+    - "rollouts.{{ .Values.istio.host }}"
+  gateways:
+    - deployment-platform
+  http:
+    - route:
+        - destination:
+            host: argo-rollouts-dashboard-service.argo-rollouts.svc.cluster.local
+            port:
+              number: 3100

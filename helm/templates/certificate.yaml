@@ -2,7 +2,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: deployment-platform-cert
-  namespace: istio-system  # <--- Moved to istio-system
+  namespace: istio-system
   annotations:
     argocd.argoproj.io/sync-wave: "5"
 spec:
@@ -14,6 +14,7 @@ spec:
   commonName: {{ .Values.istio.host }}
   dnsNames:
     - {{ .Values.istio.host }}
+    - "*.{{ .Values.istio.host }}"  # <--- ADD THIS (Wildcard support)
   privateKey:
     algorithm: RSA
     size: 2048
