@@ -2,7 +2,7 @@ apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: local-ca-issuer
-  namespace: {{ .Values.namespace }}
+  namespace: istio-system  # <--- Moved to istio-system
 spec:
   ca:
     secretName: local-root-ca

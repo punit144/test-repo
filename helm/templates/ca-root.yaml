@@ -2,7 +2,7 @@ apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: local-selfsigned
-  namespace: {{ .Values.namespace }}
+  namespace: istio-system  # <--- Moved to istio-system
 spec:
   selfSigned: {}
 ---
@@ -10,14 +10,14 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: local-root-ca
-  namespace: {{ .Values.namespace }}
+  namespace: istio-system  # <--- Moved to istio-system
 spec:
   isCA: true
   commonName: local-dev-ca
   secretName: local-root-ca
   privateKey:
-    algorithm: RSA
-    size: 2048
+    algorithm: ECDSA
+    size: 256
   issuerRef:
     name: local-selfsigned
     kind: Issuer

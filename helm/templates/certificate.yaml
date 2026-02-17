@@ -2,9 +2,9 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: deployment-platform-cert
-  namespace: {{ .Values.namespace }}
+  namespace: istio-system  # <--- Moved to istio-system
   annotations:
-    argocd.argoproj.io/sync-wave: "5"  # Valid fix: Force this to apply LAST
+    argocd.argoproj.io/sync-wave: "5"
 spec:
   secretName: deployment-platform-tls
   issuerRef:
