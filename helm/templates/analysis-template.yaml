@@ -2,11 +2,11 @@ apiVersion: argoproj.io/v1alpha1
 kind: AnalysisTemplate
 metadata:
   name: gateway-success-rate
-  namespace: deployment-event-platform
+  namespace: {{ .Values.namespace }}
 spec:
   metrics:
   - name: success-rate
-    interval: 30s
+    interval: 20s
     count: 3
     successCondition: result >= 0
     provider:
