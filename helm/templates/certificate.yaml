@@ -6,6 +6,9 @@ metadata:
 spec:
   secretName: deployment-platform-tls
 
+  duration: 2160h       # 90 days
+  renewBefore: 360h     # 15 days
+
   issuerRef:
     name: selfsigned-issuer
     kind: ClusterIssuer

@@ -7,12 +7,27 @@ spec:
   selector:
     istio: ingressgateway
   servers:
+
+    # Redirect HTTP → HTTPS automatically
     - port:
         number: 80
         name: http
         protocol: HTTP
       hosts:
         - {{ .Values.istio.host | quote }}
+      tls:
+        httpsRedirect: true
+
+    # Real HTTPS listener
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      hosts:
+        - {{ .Values.istio.host | quote }}
+      tls:
+        mode: SIMPLE
+        credentialName: deployment-platform-tls
 
 ---
 apiVersion: networking.istio.io/v1beta1
@@ -25,8 +40,14 @@ spec:
     - {{ .Values.istio.host | quote }}
   gateways:
     - deployment-platform
+
   http:
-    - route:
+
+    # Main app route
+    - match:
+        - uri:
+            prefix: /
+      route:
         - destination:
             host: gateway-stable
             port:
