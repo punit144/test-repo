@@ -6,7 +6,7 @@ metadata:
 spec:
   project: deployment-event-platform
   source:
-    repoURL: https://github.com/example/deployment-event-platform.git
+    repoURL: https://github.com/punit144/test-repo.git
     targetRevision: main
     path: helm
   destination:
