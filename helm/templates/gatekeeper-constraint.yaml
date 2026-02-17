@@ -1,0 +1,13 @@
+{{- if .Values.gatekeeper.enabled }}
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredPlatformControls
+metadata:
+  name: require-platform-controls
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  match:
+    kinds:
+      - apiGroups: ["apps"]
+        kinds: ["Deployment"]
+{{- end }}

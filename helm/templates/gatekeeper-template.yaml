@@ -1,0 +1,38 @@
+{{- if .Values.gatekeeper.enabled }}
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: k8srequiredplatformcontrols
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sRequiredPlatformControls
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8srequiredplatformcontrols
+
+        violation[{"msg": msg}] {
+          input.review.kind.kind == "Deployment"
+          container := input.review.object.spec.template.spec.containers[_]
+          not container.resources.limits
+          msg := "containers must define resource limits"
+        }
+
+        violation[{"msg": msg}] {
+          input.review.kind.kind == "Deployment"
+          not input.review.object.metadata.labels["app"]
+          msg := "deployment must include app label"
+        }
+
+        violation[{"msg": msg}] {
+          input.review.kind.kind == "Deployment"
+          container := input.review.object.spec.template.spec.containers[_]
+          not container.readinessProbe
+          msg := "containers must define readinessProbe"
+        }
+{{- end }}
+

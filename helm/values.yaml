@@ -51,3 +51,7 @@ resources:
   limits:
     cpu: 500m
     memory: 512Mi
+
+gatekeeper:
+  enabled: false
+
