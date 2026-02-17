@@ -5,23 +5,23 @@ imagePullSecrets: []
 
 services:
   gateway:
-    image: ghcr.io/example/gateway:latest
+    image: nginx:alpine
     replicas: 2
     port: 8080
   deploymentsService:
-    image: ghcr.io/example/deployments-service:latest
+    image: hashicorp/http-echo
     replicas: 2
     port: 8081
   eventsService:
-    image: ghcr.io/example/events-service:latest
+    image: hashicorp/http-echo
     replicas: 2
     port: 8082
   notificationsService:
-    image: ghcr.io/example/notifications-service:latest
+    image: hashicorp/http-echo
     replicas: 2
     port: 8083
   frontend:
-    image: ghcr.io/example/frontend:latest
+    image: nginx:alpine
     replicas: 2
     port: 80
 
