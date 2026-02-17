@@ -2,12 +2,15 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: deployment-platform-cert
-  namespace: deployment-event-platform
+  namespace: {{ .Values.namespace }}
 spec:
   secretName: deployment-platform-tls
+
   issuerRef:
-    name: local-ca
-    kind: ClusterIssuer
-  commonName: deployment-platform.local
+    name: local-ca-issuer
+    kind: Issuer
+
+  commonName: {{ .Values.istio.host }}
   dnsNames:
-  - deployment-platform.local
+    - {{ .Values.istio.host }}
+
