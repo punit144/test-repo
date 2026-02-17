@@ -2,17 +2,12 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: deployment-platform-cert
-  namespace: {{ .Values.namespace }}
+  namespace: deployment-event-platform
 spec:
   secretName: deployment-platform-tls
-
-  duration: 2160h       # 90 days
-  renewBefore: 360h     # 15 days
-
   issuerRef:
-    name: selfsigned-issuer
+    name: local-ca
     kind: ClusterIssuer
-
+  commonName: deployment-platform.local
   dnsNames:
-    - {{ .Values.istio.host | quote }}
-
+  - deployment-platform.local
