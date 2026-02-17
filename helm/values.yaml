@@ -26,10 +26,10 @@ services:
     port: 80
 
 postgres:
-  image: postgres:16-alpine
-  storage: 10Gi
+  image: postgres:15
   user: postgres
-  db: deployments
+  password: postgres
+  db: platform
 
 redis:
   image: redis:7-alpine

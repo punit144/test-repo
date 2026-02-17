@@ -10,6 +10,7 @@ spec:
   ports:
     - port: 5432
       targetPort: 5432
+
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -22,29 +23,31 @@ spec:
   selector:
     matchLabels:
       app: postgres
+
   template:
     metadata:
       labels:
         app: postgres
     spec:
       containers:
-      - name: postgres
-        image: {{ .Values.postgres.image }}
-        ports:
-        - containerPort: 5432
-        env:
-        - name: POSTGRES_USER
-          value: {{ .Values.postgres.user | quote }}
-        - name: POSTGRES_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: platform-secrets
-              key: DATABASE_URL
-        - name: POSTGRES_DB
-          value: {{ .Values.postgres.db | quote }}
-        volumeMounts:
+        - name: postgres
+          image: {{ .Values.postgres.image }}
+          ports:
+            - containerPort: 5432
+
+          env:
+            - name: POSTGRES_USER
+              value: {{ .Values.postgres.user | quote }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.postgres.password | default "postgres" | quote }}
+            - name: POSTGRES_DB
+              value: {{ .Values.postgres.db | quote }}
+
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+
+      volumes:
         - name: data
-          mountPath: /var/lib/postgresql/data
-  volumes:
-  - name: data
-    emptyDir: {}
+          emptyDir: {}
+
