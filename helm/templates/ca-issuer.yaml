@@ -1,8 +1,8 @@
 apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
+kind: Issuer
 metadata:
   name: local-ca-issuer
+  namespace: {{ .Values.namespace }}
 spec:
   ca:
     secretName: local-root-ca
-

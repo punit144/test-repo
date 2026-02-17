@@ -2,26 +2,19 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: deployment-platform-cert
-  namespace: istio-system
+  namespace: {{ .Values.namespace }}
 spec:
   secretName: deployment-platform-tls
-
   issuerRef:
     name: local-ca-issuer
-    kind: ClusterIssuer
-
+    kind: Issuer
   commonName: {{ .Values.istio.host }}
-
   dnsNames:
     - {{ .Values.istio.host }}
-
   secretTemplate:
     annotations:
       cert-manager.io/issue-temporary-certificate: "false"
-
   privateKey:
     rotationPolicy: Always
-
   additionalOutputFormats:
     - type: CombinedPEM
-
