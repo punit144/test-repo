@@ -63,9 +63,9 @@ spec:
     - name: primary
       match:
       - uri:
-          prefix: "/api" # Only match API requests
-      - uri:
-          prefix: "/health" # Also allow health checks if you have them
+          prefix: "/api" # Match requests starting with /api
+      rewrite:
+        uri: "/"         # Change /api/deployments -> /deployments
       route:
         - destination:
             host: gateway-stable
@@ -77,7 +77,6 @@ spec:
             port:
               number: 80
           weight: 0
-
 ---
 # Other Ops Routes (ArgoCD, Grafana, etc.)
 apiVersion: networking.istio.io/v1beta1
