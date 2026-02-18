@@ -28,6 +28,8 @@ spec:
         istio:
           virtualService:
             name: gateway
+            routes:
+              - primary
 
       steps:
         - setWeight: {{ .Values.rollout.canaryWeight }}

@@ -48,7 +48,7 @@ spec:
               number: 80
 
 ---
-# 2. Gateway/API Route (Direct to Backend)
+# 2. Gateway/API Route (Dual Purpose)
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
@@ -60,17 +60,33 @@ spec:
   gateways:
     - deployment-platform
   http:
-    - name: primary
+    # Route 1: API Traffic (Bypasses Gateway, goes to Backend)
+    - name: api-route
       match:
       - uri:
-          prefix: "/api/deployments" # Be specific
+          prefix: "/api/deployments"
       rewrite:
-        uri: "/deployments"        # Strip /api
+        uri: "/deployments"
       route:
         - destination:
-            host: deployments-service # TARGET THE BACKEND DIRECTLY
+            host: deployments-service
             port:
-              number: 8081            # The port from your values.yaml/main.go
+              number: 8081
+
+    # Route 2: The "Primary" Route (Managed by Argo Rollout)
+    # This keeps the Rollout healthy, even if we aren't using this path heavily right now.
+    - name: primary
+      route:
+        - destination:
+            host: {{ .Values.rollout.stableService }}
+            port:
+              number: {{ .Values.services.gateway.port }}
+          weight: 100
+        - destination:
+            host: {{ .Values.rollout.canaryService }}
+            port:
+              number: {{ .Values.services.gateway.port }}
+          weight: 0
 ---
 # Other Ops Routes (ArgoCD, Grafana, etc.)
 apiVersion: networking.istio.io/v1beta1
