@@ -12,8 +12,7 @@ spec:
         name: http
         protocol: HTTP
       hosts:
-        - "{{ .Values.istio.host }}"
-        - "*.{{ .Values.istio.host }}"
+        - "*"  # CHANGED: Accept any host (fixes 404s on custom ports)
       tls:
         httpsRedirect: true
     - port:
@@ -21,11 +20,10 @@ spec:
         name: https
         protocol: HTTPS
       hosts:
-        - "{{ .Values.istio.host }}"
-        - "*.{{ .Values.istio.host }}" # Allow all subdomains
+        - "*"  # CHANGED: Accept any host
       tls:
         mode: SIMPLE
-        credentialName: deployment-platform-tls
+        credentialName: deployment-platform-tls # Ensure this Secret exists in istio-system
 
 ---
 apiVersion: networking.istio.io/v1beta1
@@ -35,7 +33,6 @@ metadata:
   namespace: {{ .Values.namespace }}
 spec:
   hosts:
-
     - "argocd.{{ .Values.istio.host }}"
   gateways:
     - deployment-platform
@@ -44,7 +41,7 @@ spec:
         - destination:
             host: argocd-server.argocd.svc.cluster.local
             port:
-              number: 80 # Use insecure port internally (Istio handles TLS)
+              number: 80
 
 ---
 apiVersion: networking.istio.io/v1beta1
@@ -99,8 +96,9 @@ spec:
             host: argo-rollouts-dashboard-service.argo-rollouts.svc.cluster.local
             port:
               number: 3100
+
 ---
-# 5. Main Application Route (Managed by Argo Rollouts)
+# 5. Main Application Route (Fallback for root domain)
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
@@ -108,7 +106,7 @@ metadata:
   namespace: {{ .Values.namespace }}
 spec:
   hosts:
-    - "{{ .Values.istio.host }}"
+    - "*" # CHANGED: Catch-all host to ensure curl works
   gateways:
     - deployment-platform
   http:
