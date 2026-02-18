@@ -12,7 +12,7 @@ spec:
         name: http
         protocol: HTTP
       hosts:
-        - "*"  # CHANGED: Accept any host (fixes 404s on custom ports)
+        - "*"
       tls:
         httpsRedirect: true
     - port:
@@ -20,12 +20,66 @@ spec:
         name: https
         protocol: HTTPS
       hosts:
-        - "*"  # CHANGED: Accept any host
+        - "*"
       tls:
         mode: SIMPLE
-        credentialName: deployment-platform-tls # Ensure this Secret exists in istio-system
+        credentialName: deployment-platform-tls
 
 ---
+# 1. Frontend Route (The UI)
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: frontend
+  namespace: {{ .Values.namespace }}
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - deployment-platform
+  http:
+    - match:
+      - uri:
+          prefix: "/" # Matches root, but lower priority than specific paths
+      route:
+        - destination:
+            host: frontend
+            port:
+              number: 80
+
+---
+# 2. Gateway/API Route (Managed by Argo Rollouts)
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: gateway
+  namespace: {{ .Values.namespace }}
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - deployment-platform
+  http:
+    - name: primary
+      match:
+      - uri:
+          prefix: "/api" # Only match API requests
+      - uri:
+          prefix: "/health" # Also allow health checks if you have them
+      route:
+        - destination:
+            host: gateway-stable
+            port:
+              number: 80
+          weight: 100
+        - destination:
+            host: gateway-canary
+            port:
+              number: 80
+          weight: 0
+
+---
+# Other Ops Routes (ArgoCD, Grafana, etc.)
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
@@ -96,29 +150,3 @@ spec:
             host: argo-rollouts-dashboard-service.argo-rollouts.svc.cluster.local
             port:
               number: 3100
-
----
-# 5. Main Application Route (Fallback for root domain)
-apiVersion: networking.istio.io/v1beta1
-kind: VirtualService
-metadata:
-  name: gateway
-  namespace: {{ .Values.namespace }}
-spec:
-  hosts:
-    - "*" # CHANGED: Catch-all host to ensure curl works
-  gateways:
-    - deployment-platform
-  http:
-    - name: primary
-      route:
-        - destination:
-            host: gateway-stable
-            port:
-              number: 80
-          weight: 100
-        - destination:
-            host: gateway-canary
-            port:
-              number: 80
-          weight: 0
