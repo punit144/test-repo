@@ -4,9 +4,13 @@ metadata:
   name: platform-config
   namespace: {{ .Values.namespace }}
 data:
-  REDIS_ADDR: redis:6379
-  DEPLOYMENTS_SERVICE_URL: http://deployments-service:8081
-  EVENTS_WS_URL: ws://events-service:8082/ws
+  DB_HOST: "postgres"
+  DB_PORT: "5432"
+  DB_USER: "{{ .Values.postgres.user }}"
+  DB_NAME: "{{ .Values.postgres.db }}"
+  REDIS_ADDR: "redis:6379"
+  DEPLOYMENTS_SERVICE_URL: "http://deployments-service:{{ .Values.services.deploymentsService.port }}"
+  EVENTS_WS_URL: "ws://events-service:{{ .Values.services.eventsService.port }}/ws"
 ---
 apiVersion: v1
 kind: Secret
@@ -15,5 +19,4 @@ metadata:
   namespace: {{ .Values.namespace }}
 type: Opaque
 stringData:
-  DATABASE_URL: postgres://{{ .Values.postgres.user }}:CHANGE_ME@postgres:5432/{{ .Values.postgres.db }}?sslmode=disable
-  WEBHOOK_URLS: https://example-webhook.local/notify
+  DB_PASSWORD: "{{ .Values.postgres.password }}"
