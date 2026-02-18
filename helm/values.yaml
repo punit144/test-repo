@@ -4,23 +4,23 @@ imagePullSecrets: []
 
 services:
   gateway:
-    image: nginx:alpine
+    image: punit144/gateway:latest
     replicas: 2
     port: 80
   deploymentsService:
-    image: hashicorp/http-echo
+    image: punit144/deployments-service:latest
     replicas: 2
     port: 8081
   eventsService:
-    image: hashicorp/http-echo
+    image: punit144/events-service:latest
     replicas: 2
     port: 8082
   notificationsService:
-    image: hashicorp/http-echo
+    image: punit144/notifications-service:latest
     replicas: 2
     port: 8083
   frontend:
-    image: nginx:alpine
+    image: punit144/frontend:latest
     replicas: 2
     port: 80
 
@@ -35,7 +35,7 @@ redis:
 
 rollout:
   enabled: true
-  strategy: canary # canary or blueGreen
+  strategy: canary
   canaryWeight: 20
   stableService: gateway-stable
   canaryService: gateway-canary
@@ -53,4 +53,3 @@ resources:
 
 gatekeeper:
   enabled: false
-
