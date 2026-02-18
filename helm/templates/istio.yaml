@@ -26,29 +26,7 @@ spec:
         credentialName: deployment-platform-tls
 
 ---
-# 1. Frontend Route (The UI)
-apiVersion: networking.istio.io/v1beta1
-kind: VirtualService
-metadata:
-  name: frontend
-  namespace: {{ .Values.namespace }}
-spec:
-  hosts:
-    - "*"
-  gateways:
-    - deployment-platform
-  http:
-    - match:
-      - uri:
-          prefix: "/" # Matches root, but lower priority than specific paths
-      route:
-        - destination:
-            host: frontend
-            port:
-              number: 80
-
----
-# 2. Gateway/API Route (Dual Purpose)
+# THE MAIN ROUTER (Handles API, UI, and Rollouts)
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
@@ -60,7 +38,7 @@ spec:
   gateways:
     - deployment-platform
   http:
-    # Route 1: API Traffic (Bypasses Gateway, goes to Backend)
+    # 1. API Route (High Priority) - Sends traffic to Backend
     - name: api-route
       match:
       - uri:
@@ -73,9 +51,25 @@ spec:
             port:
               number: 8081
 
-    # Route 2: The "Primary" Route (Managed by Argo Rollout)
-    # This keeps the Rollout healthy, even if we aren't using this path heavily right now.
+    # 2. Frontend Route (Medium Priority) - Sends traffic to UI
+    # This matches the root path "/" but only if the API path above didn't match.
+    - name: frontend-route
+      match:
+      - uri:
+          prefix: "/"
+      route:
+        - destination:
+            host: frontend
+            port:
+              number: 80
+
+    # 3. Argo Rollouts Route (Low Priority)
+    # This route is managed by Argo. We give it a dummy match so it doesn't
+    # steal traffic from the Frontend, but Argo can still see it exists.
     - name: primary
+      match:
+      - uri:
+          prefix: "/rollout-test" # Only hits if you specifically go here
       route:
         - destination:
             host: {{ .Values.rollout.stableService }}
@@ -87,8 +81,9 @@ spec:
             port:
               number: {{ .Values.services.gateway.port }}
           weight: 0
+
 ---
-# Other Ops Routes (ArgoCD, Grafana, etc.)
+# Support Routes (ArgoCD, Grafana, etc.)
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
