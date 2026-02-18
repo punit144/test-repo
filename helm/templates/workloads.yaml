@@ -1,5 +1,4 @@
 {{- $ns := .Values.namespace -}}
-{{- /* REMOVED gateway FROM THIS LIST BELOW because it is now managed by rollout.yaml */ -}}
 {{- range $name, $cfg := dict "deployments-service" .Values.services.deploymentsService "events-service" .Values.services.eventsService "notifications-service" .Values.services.notificationsService "frontend" .Values.services.frontend }}
 
 apiVersion: apps/v1
@@ -23,8 +22,7 @@ spec:
       - name: {{ $name }}
         image: {{ $cfg.image }}
         imagePullPolicy: IfNotPresent
-
-        # ---- http-echo containers need args or they crash ----
+        
         {{- if contains "http-echo" $cfg.image }}
         args:
           - "-text={{ $name }}"
@@ -40,19 +38,24 @@ spec:
           - secretRef:
               name: platform-secrets
 
-        # ---- Probes ----
+        # --- CORRECTED PROBES LOGIC ---
+        # 1. Disable probes for events-service (Worker, no HTTP)
+        {{- if ne $name "events-service" }}
         readinessProbe:
           httpGet:
-            path: /
+            # 2. Use specific paths for each service
+            path: {{ if eq $name "notifications-service" }}/health{{ else if eq $name "deployments-service" }}/list{{ else }}/{{ end }}
             port: {{ $cfg.port }}
           initialDelaySeconds: 5
           periodSeconds: 10
         livenessProbe:
           httpGet:
-            path: /
+            path: {{ if eq $name "notifications-service" }}/health{{ else if eq $name "deployments-service" }}/list{{ else }}/{{ end }}
             port: {{ $cfg.port }}
           initialDelaySeconds: 10
           periodSeconds: 20
+        {{- end }}
+        # ------------------------------
 
         resources:
 {{ toYaml $.Values.resources | indent 10 }}
@@ -75,36 +78,3 @@ spec:
 
 ---
 {{- end }}
-
-# -------------------------------------------------
-# Required services for Argo Rollouts traffic routing
-# -------------------------------------------------
-
-apiVersion: v1
-kind: Service
-metadata:
-  name: gateway-stable
-  namespace: {{ $ns }}
-  labels:
-    app: gateway
-spec:
-  selector:
-    app: gateway
-  ports:
-    - port: 80
-      targetPort: {{ .Values.services.gateway.port }}
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: gateway-canary
-  namespace: {{ $ns }}
-  labels:
-    app: gateway
-spec:
-  selector:
-    app: gateway
-  ports:
-    - port: 80
-      targetPort: {{ .Values.services.gateway.port }}
