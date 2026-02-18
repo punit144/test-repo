@@ -48,7 +48,7 @@ spec:
               number: 80
 
 ---
-# 2. Gateway/API Route (Managed by Argo Rollouts)
+# 2. Gateway/API Route (Direct to Backend)
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
@@ -63,20 +63,14 @@ spec:
     - name: primary
       match:
       - uri:
-          prefix: "/api" # Match requests starting with /api
+          prefix: "/api/deployments" # Be specific
       rewrite:
-        uri: "/"         # Change /api/deployments -> /deployments
+        uri: "/deployments"        # Strip /api
       route:
         - destination:
-            host: gateway-stable
+            host: deployments-service # TARGET THE BACKEND DIRECTLY
             port:
-              number: 80
-          weight: 100
-        - destination:
-            host: gateway-canary
-            port:
-              number: 80
-          weight: 0
+              number: 8081            # The port from your values.yaml/main.go
 ---
 # Other Ops Routes (ArgoCD, Grafana, etc.)
 apiVersion: networking.istio.io/v1beta1
