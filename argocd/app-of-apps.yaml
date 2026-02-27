@@ -1,25 +1,20 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: deployment-event-platform
+  name: platform-root
   namespace: argocd
 spec:
   project: deployment-event-platform
-  ignoreDifferences:
-  - group: crd.projectcalico.org
-    kind: NetworkPolicy
-    jsonPointers:
-      - /spec
   source:
     repoURL: https://github.com/punit144/test-repo.git
     targetRevision: main
-    path: helm
+    path: charts
+    directory:
+      recurse: true
   destination:
     server: https://kubernetes.default.svc
-    namespace: deployment-event-platform
+    namespace: argocd
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
-    syncOptions:
-      - CreateNamespace=true

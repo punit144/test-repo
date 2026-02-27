@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: arc-system
+  namespace: argocd
+spec:
+  project: deployment-event-platform
+  source:
+    repoURL: https://actions-runner-controller.github.io/actions-runner-controller
+    chart: actions-runner-controller
+    targetRevision: 0.23.7
+    helm:
+      values: |
+        authSecret:
+          create: true
+          github_token: <PUT_GITHUB_PAT>
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: arc-systems
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

@@ -10,6 +10,8 @@ spec:
   destinations:
     - namespace: deployment-event-platform
       server: https://kubernetes.default.svc
+    - namespace: istio-system
+      server: https://kubernetes.default.svc
   clusterResourceWhitelist:
     - group: '*'
       kind: '*'

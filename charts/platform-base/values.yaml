@@ -1,0 +1,4 @@
+namespace: deployment-event-platform
+
+istio:
+  host: "deployment-platform.local"

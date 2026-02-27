@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: arc-runners
+  namespace: argocd
+spec:
+  project: deployment-event-platform
+  source:
+    repoURL: https://actions-runner-controller.github.io/actions-runner-controller
+    chart: gha-runner-scale-set
+    targetRevision: 0.23.7
+    helm:
+      values: |
+        githubConfigUrl: https://github.com/YOUR_ORG
+        githubConfigSecret:
+          create: true
+          github_token: <PUT_GITHUB_PAT>
+        minRunners: 1
+        maxRunners: 10
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: arc-runners
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
